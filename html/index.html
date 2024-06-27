@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário Centralizado</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            /* align-items: center; */
+            height: 100vh;
+            margin: 0;
+            background-color: #333;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        form {
+            width: 35%;
+            margin-top: 50px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            display: block;
+            padding: 10px 16px;
+            background-color: #6e0ac0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #6e0ac0;
+        }
+
+        div {
+            margin-top: 20px;
+        }
+
+        .box {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .content {
+            width: 35%;
+            margin-top: 30px;
+            text-align: justify;
+        }
+
+        .loader {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: block;
+  margin:15px auto;
+  position: relative;
+  color: #FFF;
+  box-sizing: border-box;
+  animation: animloader 2s linear infinite;
+}
+
+@keyframes animloader {
+  0% {
+    box-shadow: 14px 0 0 -2px,  38px 0 0 -2px,  -14px 0 0 -2px,  -38px 0 0 -2px;
+  }
+  25% {
+    box-shadow: 14px 0 0 -2px,  38px 0 0 -2px,  -14px 0 0 -2px,  -38px 0 0 2px;
+  }
+  50% {
+    box-shadow: 14px 0 0 -2px,  38px 0 0 -2px,  -14px 0 0 2px,  -38px 0 0 -2px;
+  }
+  75% {
+    box-shadow: 14px 0 0 2px,  38px 0 0 -2px,  -14px 0 0 -2px,  -38px 0 0 -2px;
+  }
+  100% {
+    box-shadow: 14px 0 0 -2px,  38px 0 0 2px,  -14px 0 0 -2px,  -38px 0 0 -2px;
+  }
+}
+    </style>
+</head>
+
+<body>
+    
+
+    <div class="box">
+        <form method="post">
+            <label>No que você está pensando?</label>
+            <input type="text" name="input_text" placeholder="Faça sua pergunta...">
+    
+            <button type="button">Enviar</button>
+        </form>
+    
+        <div id="resultado" class="content">
+            <span class="loader"></span>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const inputText = document.querySelector('input[name="input_text"]')
+            const button = document.querySelector('button')
+
+            button.addEventListener('click', async (e) => {
+                e.preventDefault()
+
+                const MESSAGE = {
+                    content: inputText.value
+                }
+
+                await fetch('http://localhost:5001/openai/', {
+                    method: "post",
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    },
+                    body: JSON.stringify(MESSAGE)
+                })
+
+                document.querySelector('#resultado').innerText = ''
+            })
+
+            setTimeout( () => {
+
+                const fetchData = async () => {
+                    const response = await fetch('http://localhost:5001/openai/', 
+                        { method: "get"}
+                    )
+                    const data = await response.json()
+                    const results =  data.choices[0].message.content
+                    document.querySelector('#resultado').innerText = ''
+                    document.querySelector('#resultado').innerText = results
+
+                    document.querySelector('.loader').style.display = 'none'
+                 }
+
+                fetchData()
+
+                console.log('consultando...')
+            }, 4000)
+        })
+    </script>
+</body>
+
+</html>
